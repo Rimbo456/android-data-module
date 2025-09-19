@@ -3,18 +3,19 @@ package com.example.android_data_module.data.movie.repository
 import com.example.android_data_module.data.common.util.Resource
 import com.example.android_data_module.data.movie.datasource.local.MovieDao
 import com.example.android_data_module.data.movie.datasource.remote.MovieApiService
-import com.example.android_data_module.data.movie.model.Movie
-import com.example.android_data_module.data.movie.model.toDomain
-import com.example.android_data_module.data.movie.model.toEntity
+import com.example.android_data_module.domain.model.Movie
+import com.example.android_data_module.data.movie.mapper.toDomain
+import com.example.android_data_module.data.movie.mapper.toEntity
+import com.example.android_data_module.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class MovieRepository @Inject constructor(
+class MovieRepositoryImpl @Inject constructor(
     private val movieApiService: MovieApiService,
     private val movieDao: MovieDao
-) {
-    fun getPopularMovies(): Flow<Resource<List<Movie>>> = flow {
+): MovieRepository {
+    override suspend fun getPopularMovies(): Flow<Resource<List<Movie>>> = flow {
         emit(Resource.Loading)
 
         val cache = movieDao.getAllMovies().map { it.toDomain() }

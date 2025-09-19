@@ -1,20 +1,19 @@
 package com.example.android_data_module.data.common.di
 
-import com.example.android_data_module.data.movie.datasource.local.MovieDao
-import com.example.android_data_module.data.movie.datasource.remote.MovieApiService
-import com.example.android_data_module.data.movie.repository.MovieRepository
+import com.example.android_data_module.data.movie.repository.MovieRepositoryImpl
+import com.example.android_data_module.domain.repository.MovieRepository
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object RepositoryModule {
-    @Provides
+abstract class RepositoryModule {
+    @Binds
     @Singleton
-    fun provideMovieRepository(api: MovieApiService, dao: MovieDao): MovieRepository {
-        return MovieRepository(api, dao)
-    }
+    abstract fun bindMovieRepository(
+        movieRepositoryImpl: MovieRepositoryImpl
+    ): MovieRepository
 }

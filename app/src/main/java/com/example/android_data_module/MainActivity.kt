@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import com.example.android_data_module.data.common.util.Resource
-import com.example.android_data_module.data.movie.repository.MovieRepository
+import com.example.android_data_module.domain.repository.MovieRepository
 import com.example.android_data_module.ui.theme.AndroiddatamoduleTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
