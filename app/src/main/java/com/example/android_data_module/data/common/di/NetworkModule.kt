@@ -1,8 +1,10 @@
 package com.example.android_data_module.data.common.di
 
+import com.example.android_data_module.data.common.datastore.UserSettingRepositoryImpl
 import com.example.android_data_module.data.common.util.Constants
 import com.example.android_data_module.data.movie.datasource.remote.MovieApiService
 import com.example.android_data_module.data.movie.datasource.remote.interceptor.AuthInterceptor
+import com.example.android_data_module.data.movie.datasource.remote.interceptor.LanguageInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,11 +17,22 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+
     @Provides
     @Singleton
-    fun provideOkHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
+    fun provideLanguageInterceptor(userSettingRepositoryImpl: UserSettingRepositoryImpl): LanguageInterceptor {
+        return LanguageInterceptor(userSettingRepositoryImpl)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        languageInterceptor: LanguageInterceptor,
+    ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
+            .addInterceptor(languageInterceptor)
             .build()
     }
 
