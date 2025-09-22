@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.android_data_module.domain.model.Movie
 import com.example.android_data_module.domain.util.Resource
 import com.example.android_data_module.domain.repository.MovieRepository
+import com.example.android_data_module.domain.repository.UserSettingRepository
 import com.example.android_data_module.ui.feature_movie.state.MovieListUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,18 +18,23 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MovieListViewModel @Inject constructor(
-    private val movieRepository: MovieRepository
+    private val movieRepository: MovieRepository,
+    private val userSettingRepository: UserSettingRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MovieListUiState())
     val uiState: StateFlow<MovieListUiState> = _uiState.asStateFlow()
 
     init {
-        loadPopularMovie()
+        loadPopularMovie(forceRefresh = false)
     }
 
-    fun loadPopularMovie() {
-        movieRepository.getPopularMovies()
+    suspend fun updateLanguage(string: String) {
+        userSettingRepository.updateLanguage(string)
+    }
+
+    fun loadPopularMovie(forceRefresh: Boolean = false) {
+        movieRepository.getPopularMovies(forceRefresh = forceRefresh)
             .onEach { resource ->
                 val newState = when (resource) {
                     is Resource.Loading -> _uiState.value.copy(

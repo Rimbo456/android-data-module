@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import com.example.android_data_module.domain.util.Resource
 import com.example.android_data_module.domain.repository.MovieRepository
+import com.example.android_data_module.domain.repository.UserSettingRepository
 import com.example.android_data_module.ui.feature_movie.screen.ListMoviesScreen
 import com.example.android_data_module.ui.feature_movie.viewmodel.MovieListViewModel
 import com.example.android_data_module.ui.theme.AndroiddatamoduleTheme
@@ -19,11 +20,15 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject lateinit var movieRepository: MovieRepository
+    @Inject lateinit var userSettingRepository: UserSettingRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val viewModel = MovieListViewModel(movieRepository)
+        val viewModel = MovieListViewModel(
+            movieRepository,
+            userSettingRepository
+        )
 
         enableEdgeToEdge()
         setContent {

@@ -18,7 +18,7 @@ class MovieRepositoryImpl @Inject constructor(
     private val movieApiService: MovieApiService,
     private val movieDao: MovieDao
 ): MovieRepository {
-    override fun getPopularMovies(): Flow<Resource<List<Movie>>> {
+    override fun getPopularMovies(forceRefresh: Boolean): Flow<Resource<List<Movie>>> {
         return object : NetworkBoundResource<List<Movie>, List<MovieDto>>() {
             override fun loadFromDb(): Flow<List<Movie>> {
                 return movieDao.getAllMovies().map { list ->
@@ -26,11 +26,17 @@ class MovieRepositoryImpl @Inject constructor(
                 }
             }
             override fun shouldFetch(data: List<Movie>?): Boolean {
-                return data == null || data.isEmpty()
+                if (forceRefresh) {
+                    return true
+                }
+                if (data == null || data.isEmpty()) {
+                    return true
+                }
+                return false
             }
             override suspend fun createCall(): List<MovieDto> {
                 val res = movieApiService.getPopularMovies()
-                if (!res.isSuccessful) {
+                if (res.isSuccessful) {
                     return res.body()?.results ?: emptyList()
                 } else {
                     throw Exception("Api error code: ${res.code()}")
