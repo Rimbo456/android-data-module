@@ -1,41 +1,45 @@
 package com.example.android_data_module.data.movie.repository
 
-import com.example.android_data_module.data.common.util.Resource
+import NetworkBoundResource
+import com.example.android_data_module.domain.util.Resource
 import com.example.android_data_module.data.movie.datasource.local.MovieDao
 import com.example.android_data_module.data.movie.datasource.remote.MovieApiService
+import com.example.android_data_module.data.movie.datasource.remote.dto.MovieDto
 import com.example.android_data_module.domain.model.Movie
 import com.example.android_data_module.data.movie.mapper.toDomain
 import com.example.android_data_module.data.movie.mapper.toEntity
 import com.example.android_data_module.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class MovieRepositoryImpl @Inject constructor(
     private val movieApiService: MovieApiService,
     private val movieDao: MovieDao
 ): MovieRepository {
-    override suspend fun getPopularMovies(): Flow<Resource<List<Movie>>> = flow {
-        emit(Resource.Loading)
-
-        val cache = movieDao.getAllMovies().map { it.toDomain() }
-        if (cache.isNotEmpty()) emit(Resource.Success(cache))
-
-        try {
-            val res = movieApiService.getPopularMovies()
-            if (res.isSuccessful) {
-                res.body()?.let { body ->
-                    val entities = body.results.map { it.toEntity() }
-                    movieDao.insertMovies(entities)
-                    emit(Resource.Success(entities.map { it.toDomain() }))
-                } ?: emit(Resource.Error("Response body is null"))
-            } else {
-                val errorBody = res.errorBody()?.string() ?: "No error body"
-                val errorMessage = "HTTP ${res.code()}: ${res.message()}. Body: $errorBody"
-                emit(Resource.Error(errorMessage))
+    override fun getPopularMovies(): Flow<Resource<List<Movie>>> {
+        return object : NetworkBoundResource<List<Movie>, List<MovieDto>>() {
+            override fun loadFromDb(): Flow<List<Movie>> {
+                return movieDao.getAllMovies().map { list ->
+                    list.map { it.toDomain() }
+                }
             }
-        } catch (e: Exception) {
-            emit(Resource.Error(e.message ?: "Unknown error"))
-        }
+            override fun shouldFetch(data: List<Movie>?): Boolean {
+                return data == null || data.isEmpty()
+            }
+            override suspend fun createCall(): List<MovieDto> {
+                val res = movieApiService.getPopularMovies()
+                if (!res.isSuccessful) {
+                    return res.body()?.results ?: emptyList()
+                } else {
+                    throw Exception("Api error code: ${res.code()}")
+                }
+            }
+            override suspend fun saveCallResult(data: List<MovieDto>) {
+                movieDao.insertMovies(data.map { it.toEntity() })
+            }
+
+        }.asFlow()
     }
 }
