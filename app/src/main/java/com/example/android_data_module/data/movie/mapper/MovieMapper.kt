@@ -8,12 +8,16 @@ fun MovieDto.toEntity() = MovieEntity (
     id = id,
     title = title,
     overview = overview,
-    posterPath = posterPath
+    posterPath = posterPath,
+    releaseDate = releaseDate,
+    voteAverage = voteAverage
 )
 
 fun MovieEntity.toDomain() = Movie(
     id = id,
     title = title,
     overview = overview,
-    posterPath = posterPath
+    posterPath = posterPath,
+    releaseDate = releaseDate,
+    voteAverage = voteAverage
 )

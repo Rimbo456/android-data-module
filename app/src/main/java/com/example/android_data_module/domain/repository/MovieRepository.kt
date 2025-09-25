@@ -5,5 +5,5 @@ import com.example.android_data_module.domain.model.Movie
 import kotlinx.coroutines.flow.Flow
 
 interface MovieRepository {
-    fun getPopularMovies(): Flow<Resource<List<Movie>>>
+    fun getPopularMovies(forceRefresh: Boolean = false): Flow<Resource<List<Movie>>>
 }
