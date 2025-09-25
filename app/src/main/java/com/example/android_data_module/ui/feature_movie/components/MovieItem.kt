@@ -33,6 +33,13 @@ fun MovieItem(
                 text = movie.overview,
                 color = Color.Black,
             )
+            Spacer(modifier = Modifier.height(4.dp))
+            movie.releaseDate?.let {
+                Text(
+                    text = it,
+                    color = Color.Black,
+                )
+            }
         }
     }
 }
